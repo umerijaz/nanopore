@@ -7,8 +7,9 @@
 #	     mafft-ginsi
 #	     Python scripts, uc2otutab.py in particular from https://drive5.com/python/python_scripts.tar.gz 
 #	     (unzip them in ~/bin directory and then chmod +x *)	
-# Version:   0.3
-# History:   Added detailed help and removed inc-seq dependency
+# Version:   0.4
+# History:   Added functionality to check if the files are not empty
+#	     Added detailed help and removed inc-seq dependency
 #	     Added dynamic tandem threshold and fixed a few bugs (i.e. dynamic thresholding
 #	     lower/upper bound for consensus reads)
 # Authors:   Umer Zeeshan Ijaz (Umer.Ijaz@glasgow.ac.uk)
@@ -70,6 +71,12 @@ def create_folder(directory):
     		os.makedirs(directory)
 	else:
 		print 'Folder ' + directory + ' already exists! Skipping!'
+
+def is_empty(fname):
+	if os.stat(fname).st_size == 0:
+		return 0
+	else:
+		return 1
 
 def remove_file(path):
 	print 'Removing ' + path
@@ -177,10 +184,18 @@ def extract_uc_record(file_name):
 	return otus_assignments
 
 def run_vsearch(prog_name,directory_name,file_name,file_prefix):
+	ran_correctly=1
+
 	iname=file_name
 	oname=directory_name+'/'+file_prefix+'_u.fasta'
 	print_time_stamp('Dereplicating ' + iname)
 	cmd=prog_name + ' --derep_fulllength ' + iname + ' --output ' + oname + ' --sizeout --minseqlength 50'
+
+	ran_correctly=is_empty(iname)
+	if ran_correctly==0:
+		print_time_stamp('Skipping ' + cmd + ' and rest as ' + iname + ' is empty')
+		return ran_correctly
+ 
 	print cmd
 	run_prog(cmd)
 	print_time_stamp('Generated ' + oname)
@@ -190,6 +205,12 @@ def run_vsearch(prog_name,directory_name,file_name,file_prefix):
 	oname=directory_name+'/'+file_prefix+'_n.fasta'
 	print_time_stamp('Removing chimerias from ' + iname)
 	cmd=prog_name + ' --uchime_denovo ' + iname + ' --nonchimeras ' + oname
+
+        ran_correctly=is_empty(iname)
+        if ran_correctly==0:
+                print_time_stamp('Skipping ' + cmd + ' and rest as ' + iname + ' is empty')
+                return ran_correctly
+
 	print cmd
 	run_prog(cmd)
 	print_time_stamp('Generated ' + oname)
@@ -198,6 +219,13 @@ def run_vsearch(prog_name,directory_name,file_name,file_prefix):
         oname=directory_name+'/'+file_prefix+'_s.fasta'
         print_time_stamp('Sorting ' + iname + ' by size')
 	cmd=prog_name + ' --sortbysize ' + iname + ' --output ' + oname + ' --minsize 2'
+
+        ran_correctly=is_empty(iname)
+        if ran_correctly==0:
+                print_time_stamp('Skipping ' + cmd + ' and rest as ' + iname + ' is empty')
+                return ran_correctly
+
+
         print cmd
         run_prog(cmd)
         print_time_stamp('Generated ' + oname)
@@ -206,6 +234,13 @@ def run_vsearch(prog_name,directory_name,file_name,file_prefix):
         oname=directory_name+'/'+file_prefix+'_r.fasta'
         print_time_stamp('Clustering ' + iname + ' at 97% ident')
 	cmd=prog_name + ' --cluster_smallmem ' + iname + ' --id 0.97 --consout ' + oname + ' --usersort'
+
+        ran_correctly=is_empty(iname)
+        if ran_correctly==0:
+                print_time_stamp('Skipping ' + cmd + ' and rest as ' + iname + ' is empty')
+                return ran_correctly
+
+
         print cmd
         run_prog(cmd)
         print_time_stamp('Generated ' + oname)
@@ -226,6 +261,12 @@ def run_vsearch(prog_name,directory_name,file_name,file_prefix):
         oname=directory_name+'/'+file_prefix+'.uc'
         print_time_stamp('Searching ' + file_name + ' against OTUs ' + iname)
 	cmd=prog_name + ' --usearch_global ' + file_name + ' --db ' + iname + ' --strand both --id 0.97 --uc ' + oname + ' --threads 20'
+
+        ran_correctly=is_empty(iname)
+        if ran_correctly==0:
+                print_time_stamp('Skipping ' + cmd + ' and rest as ' + iname + ' is empty')
+                return ran_correctly
+
         print cmd
         run_prog(cmd)
         print_time_stamp('Generated ' + oname)
@@ -234,7 +275,7 @@ def run_vsearch(prog_name,directory_name,file_name,file_prefix):
 	remove_file(directory_name+'/'+file_prefix+'_n.fasta')
 	remove_file(directory_name+'/'+file_prefix+'_s.fasta')
 	remove_file(directory_name+'/'+file_prefix+'_r.fasta')
-		
+	return ran_correctly		
 
 def main(argv):
 	input_file=''
@@ -286,14 +327,17 @@ def main(argv):
 
 
 	number_of_files=split_fasta(output_folder,input_file,split_option,average_length)
-	
+
+	ran_correctly_partitions=[]	
 	for i in range(number_of_files):
-		run_vsearch(PROG_VSEARCH,output_folder,output_folder+"/p"+str(i+1)+".fasta","p"+str(i+1))
+		ran_correctly=run_vsearch(PROG_VSEARCH,output_folder,output_folder+"/p"+str(i+1)+".fasta","p"+str(i+1))
+		if ran_correctly:
+			ran_correctly_partitions.append(i)
 
 	num_otus=-1
 	file_name=""
 	otu_assignments=dict()
-	for i in range(number_of_files):
+	for i in ran_correctly_partitions:
 		rec=extract_uc_record(output_folder+"/p"+str(i+1)+".uc")
 		if(len(rec.keys())>num_otus):
 			otu_assignments=rec
