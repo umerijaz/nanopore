@@ -38,7 +38,7 @@ import math
 from Bio import SeqIO
 from Bio import pairwise2
 from Bio.Seq import Seq
-import pdb
+import time
 
 def usage():
     print ('Usage:')
@@ -96,6 +96,7 @@ def process_etandem_record(full_sequence,verbosity,tandem_min_repeat,tandem_max_
 
 
 def main(argv):
+
     input_file=''
     forward_primer=''
     reverse_primer=''
@@ -120,7 +121,6 @@ def main(argv):
 
         
         #this code is used to put options in the arguments in the proper place  I'm having to spilit up the options in this case becuse they do not read from commandline properly
-
     try:
              opts,args=getopt.getopt(argv,"hi:f:r:vl:m:",["input_file","forward_primer","reverse_primer","minim    um_length","maximum_length"])
     except getopt.GetoptError:
@@ -167,29 +167,34 @@ def main(argv):
              f_match_string=str(forward_orientation_forward_primer_alignment[0][0][f_match_left_position:f_match_right_position])
              f_right_string=str(forward_orientation_forward_primer_alignment[0][0][(f_match_right_position):])
              if verbosity:
-                print ("Step 1: Match primers and correctly rearrange the sequence")
-                print ('Forward Primer Match:')
-                print(f_left_string + '\x1b[6;30;42m' + f_match_string + '\x1b[0m' + f_right_string)
+                  print ("Step 1: Match primers and correctly rearrange the sequence")
+                  print ('Forward Primer Match:')
+                  print(f_left_string + '\x1b[6;30;42m' + f_match_string + '\x1b[0m' + f_right_string)
 
-                r_match_left_position=forward_orientation_reverse_primer_alignment[0][3]
-                r_match_right_position=forward_orientation_reverse_primer_alignment[0][4]
-                r_left_string=str(forward_orientation_reverse_primer_alignment[0][0][0:(r_match_left_position)])
-                r_match_string=str(forward_orientation_reverse_primer_alignment[0][0][r_match_left_position:r_match_right_position])
-                r_right_string=str(forward_orientation_reverse_primer_alignment[0][0][(r_match_right_position):])
-                if verbosity:
-                    print ('Reverse Primer Match:')
-                    print(r_left_string + '\x1b[6;30;43m' + r_match_string + '\x1b[0m' + r_right_string)
-                       #See if there is a right-over hang after the reverse primer and remove it
-                    ind_r=f_right_string.find(r_match_string.replace("-",""))
-                    if (ind_r > -1):
-                        f_right_string=f_right_string[0:ind_r]
-                        full_sequence=f_match_string + f_right_string + f_left_string
-                        full_sequence=full_sequence.replace("-","")
-                        full_sequence=process_etandem_record(full_sequence,verbosity,tandem_min_repeat,tandem_max_repeat,tandem_threshold,tandem_mismatch,tandem_identity_threshold)
-                        if not verbosity:
-                            if ((len(full_sequence)>=minimum_read_length_threshold) and (len(full_sequence)<=maximum_read_length_threshold)):
-                                print(">" + str(seq_record.id)+"_corrected_length="+str(len(full_sequence)))
-                                print(full_sequence)
+             r_match_left_position=forward_orientation_reverse_primer_alignment[0][3]
+             r_match_right_position=forward_orientation_reverse_primer_alignment[0][4]
+             r_left_string=str(forward_orientation_reverse_primer_alignment[0][0][0:(r_match_left_position)])
+             r_match_string=str(forward_orientation_reverse_primer_alignment[0][0][r_match_left_position:r_match_right_position])
+             r_right_string=str(forward_orientation_reverse_primer_alignment[0][0][(r_match_right_position):])
+             if verbosity:
+                  print ('Reverse Primer Match:')
+                  print(r_left_string + '\x1b[6;30;43m' + r_match_string + '\x1b[0m' + r_right_string)
+
+
+                    #See if there is a right-over hang after the reverse primer and remove it
+             ind_r=f_right_string.find(r_match_string.replace("-",""))
+
+             if (ind_r > -1):
+                  f_right_string=f_right_string[0:ind_r]
+
+
+             full_sequence=f_match_string + f_right_string + f_left_string
+             full_sequence=full_sequence.replace("-","")
+             full_sequence=process_etandem_record(full_sequence,verbosity,tandem_min_repeat,tandem_max_repeat,tandem_threshold,tandem_mismatch,tandem_identity_threshold)
+             if not verbosity:
+                 if ((len(full_sequence)>=minimum_read_length_threshold) and (len(full_sequence)<=maximum_read_length_threshold)):
+                      print(">" + str(seq_record.id)+"_corrected_length="+str(len(full_sequence)))
+                      print(full_sequence)
         else:
             f_match_left_position=reverse_orientation_forward_primer_alignment[0][3]
             f_match_right_position=reverse_orientation_forward_primer_alignment[0][4]
@@ -200,39 +205,34 @@ def main(argv):
                 print ("Step 1: Match primers and correctly rearrange the sequence")
                 print ('Reverse Primer Match (Reverse Orientation):')
                 print(f_left_string + '\x1b[6;30;42m' + f_match_string + '\x1b[0m' + f_right_string)
-                r_match_left_position=reverse_orientation_reverse_primer_alignment[0][3]
-                r_match_right_position=reverse_orientation_reverse_primer_alignment[0][4]
-                r_left_string=str(reverse_orientation_reverse_primer_alignment[0][0][0:(r_match_left_position)])
-                r_match_string=str(reverse_orientation_reverse_primer_alignment[0][0][r_match_left_position:r_match_right_position])
-                r_right_string=str(reverse_orientation_reverse_primer_alignment[0][0][(r_match_right_position):])
+            r_match_left_position=reverse_orientation_reverse_primer_alignment[0][3]
+            r_match_right_position=reverse_orientation_reverse_primer_alignment[0][4]
+            r_left_string=str(reverse_orientation_reverse_primer_alignment[0][0][0:(r_match_left_position)])
+            r_match_string=str(reverse_orientation_reverse_primer_alignment[0][0][r_match_left_position:r_match_right_position])
+            r_right_string=str(reverse_orientation_reverse_primer_alignment[0][0][(r_match_right_position):])
 		
                         #See if there is a right-over hang after the reverse primer and remove it
-                ind_r=f_right_string.find(r_match_string.replace("-",""))
-                if (ind_r > -1):
-                    f_right_string=f_right_string[0:ind_r]
-                    if verbosity:
-                        print ('Forward Primer Match (Reverse Orientation):')
-                        print(r_left_string + '\x1b[6;30;43m' + r_match_string + '\x1b[0m' + r_right_string)
-                        full_sequence=f_match_string + f_right_string + f_left_string
-                        full_sequence=full_sequence.replace("-","")
-                        full_sequence=str(Seq(full_sequence).reverse_complement())
-                        full_sequence=process_etandem_record(full_sequence,verbosity,tandem_min_repeat,tandem_max_repeat,tandem_threshold,tandem_mismatch,tandem_identity_threshold)
-                        if not verbosity:
-                            if ((len(full_sequence)>=minimum_read_length_threshold) and (len(full_sequence)<=maximum_read_length_threshold)):
-                                 print(">" + str(seq_record.id)+"_corrected_length="+str(len(full_sequence)))
-                                 print(full_sequence)
+            ind_r=f_right_string.find(r_match_string.replace("-",""))
+            if (ind_r > -1):
+                f_right_string=f_right_string[0:ind_r]
+            if verbosity:
+                print ('Forward Primer Match (Reverse Orientation):')
+                print(r_left_string + '\x1b[6;30;43m' + r_match_string + '\x1b[0m' + r_right_string)
+                        
+            full_sequence=f_match_string + f_right_string + f_left_string
+            full_sequence=full_sequence.replace("-","")
+            full_sequence=str(Seq(full_sequence).reverse_complement())
+            full_sequence=process_etandem_record(full_sequence,verbosity,tandem_min_repeat,tandem_max_repeat,tandem_threshold,tandem_mismatch,tandem_identity_threshold)
+
+
+            if not verbosity:
+                if ((len(full_sequence)>=minimum_read_length_threshold) and (len(full_sequence)<=maximum_read_length_threshold)):
+                    print(">" + str(seq_record.id)+"_corrected_length="+str(len(full_sequence)))
+                    print(full_sequence)
 
 
 
 if __name__== "__main__":
-    p1 = mp.Process(target=main, args=[sys.argv[1:]])
-    p2 = mp.Process(target=main, args=[sys.argv[1:7:]])
+    main(sys.argv[1:])
     
-    p1.start()
-    p2.start()
-    
-    p1.join(20.00)
-    p2.join(40.00)
-
-
 
