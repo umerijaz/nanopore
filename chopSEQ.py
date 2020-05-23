@@ -157,25 +157,36 @@ def main(argv):
                 print('\x1b[6;37;40m' + str(seq_record.id) + '\x1b[0m')
         forward_orientation_forward_primer_alignment=pairwise2.align.localms(str(seq_record.seq),forward_primer,primer_match_score, primer_mismatch_score, primer_open_gap_score, primer_extend_gap_score, one_alignment_only=1)
         forward_orientation_reverse_primer_alignment=pairwise2.align.localms(str(seq_record.seq),str(Seq(reverse_primer).reverse_complement()),primer_match_score,primer_mismatch_score, primer_open_gap_score, primer_extend_gap_score, one_alignment_only=1)
+
         reverse_orientation_forward_primer_alignment=pairwise2.align.localms(str(seq_record.seq),reverse_primer,primer_match_score,primer_mismatch_score, primer_open_gap_score, primer_extend_gap_score, one_alignment_only=1)
         reverse_orientation_reverse_primer_alignment=pairwise2.align.localms(str(seq_record.seq),str(Seq(forward_primer).reverse_complement()),primer_match_score,primer_mismatch_score, primer_open_gap_score, primer_extend_gap_score, one_alignment_only=1)		
-		#Find the correct orientation based on mean scores of primers matching
+        #Find the correct orientation based on mean scores of primers matching
+
         if numpy.mean([forward_orientation_forward_primer_alignment[0][2],forward_orientation_reverse_primer_alignment[0][2]]) > numpy.mean([reverse_orientation_forward_primer_alignment[0][2],reverse_orientation_reverse_primer_alignment[0][2]]):
+
+
              f_match_left_position=forward_orientation_forward_primer_alignment[0][3]
              f_match_right_position=forward_orientation_forward_primer_alignment[0][4]
              f_left_string=str(forward_orientation_forward_primer_alignment[0][0][0:(f_match_left_position)])
              f_match_string=str(forward_orientation_forward_primer_alignment[0][0][f_match_left_position:f_match_right_position])
              f_right_string=str(forward_orientation_forward_primer_alignment[0][0][(f_match_right_position):])
+
+
+
              if verbosity:
                   print ("Step 1: Match primers and correctly rearrange the sequence")
                   print ('Forward Primer Match:')
                   print(f_left_string + '\x1b[6;30;42m' + f_match_string + '\x1b[0m' + f_right_string)
+
 
              r_match_left_position=forward_orientation_reverse_primer_alignment[0][3]
              r_match_right_position=forward_orientation_reverse_primer_alignment[0][4]
              r_left_string=str(forward_orientation_reverse_primer_alignment[0][0][0:(r_match_left_position)])
              r_match_string=str(forward_orientation_reverse_primer_alignment[0][0][r_match_left_position:r_match_right_position])
              r_right_string=str(forward_orientation_reverse_primer_alignment[0][0][(r_match_right_position):])
+
+
+
              if verbosity:
                   print ('Reverse Primer Match:')
                   print(r_left_string + '\x1b[6;30;43m' + r_match_string + '\x1b[0m' + r_right_string)
@@ -205,6 +216,8 @@ def main(argv):
                 print ("Step 1: Match primers and correctly rearrange the sequence")
                 print ('Reverse Primer Match (Reverse Orientation):')
                 print(f_left_string + '\x1b[6;30;42m' + f_match_string + '\x1b[0m' + f_right_string)
+
+
             r_match_left_position=reverse_orientation_reverse_primer_alignment[0][3]
             r_match_right_position=reverse_orientation_reverse_primer_alignment[0][4]
             r_left_string=str(reverse_orientation_reverse_primer_alignment[0][0][0:(r_match_left_position)])
@@ -213,6 +226,8 @@ def main(argv):
 		
                         #See if there is a right-over hang after the reverse primer and remove it
             ind_r=f_right_string.find(r_match_string.replace("-",""))
+
+
             if (ind_r > -1):
                 f_right_string=f_right_string[0:ind_r]
             if verbosity:
@@ -233,6 +248,8 @@ def main(argv):
 
 
 if __name__== "__main__":
-    main(sys.argv[1:])
+    with mp.Pool(processes=4) as p:
+        print(p.map(main,sys.argv[1:]))
+
     
 
