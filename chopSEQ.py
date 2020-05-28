@@ -96,7 +96,7 @@ def process_etandem_record(full_sequence,verbosity,tandem_min_repeat,tandem_max_
 
 
 def main(argv):
-
+    start= time.time()
     input_file=''
     forward_primer=''
     reverse_primer=''
@@ -151,10 +151,11 @@ def main(argv):
 	#Some of the references we used in writing the code
 	#Reference: http://biopython.org/DIST/docs/tutorial/Tutorial.html#htoc85
 	#Reference: https://stackoverflow.com/questions/287871/print-in-terminal-with-colors-using-python
-
+    start1=time.time()
     for seq_record in SeqIO.parse(input_file,"fasta"):
+        start2=time.time()
         if verbosity:
-                print('\x1b[6;37;40m' + str(seq_record.id) + '\x1b[0m')
+            print('\x1b[6;37;40m' + str(seq_record.id) + '\x1b[0m')
         forward_orientation_forward_primer_alignment=pairwise2.align.localms(str(seq_record.seq),forward_primer,primer_match_score, primer_mismatch_score, primer_open_gap_score, primer_extend_gap_score, one_alignment_only=1)
         forward_orientation_reverse_primer_alignment=pairwise2.align.localms(str(seq_record.seq),str(Seq(reverse_primer).reverse_complement()),primer_match_score,primer_mismatch_score, primer_open_gap_score, primer_extend_gap_score, one_alignment_only=1)
 
@@ -206,6 +207,10 @@ def main(argv):
                  if ((len(full_sequence)>=minimum_read_length_threshold) and (len(full_sequence)<=maximum_read_length_threshold)):
                       print(">" + str(seq_record.id)+"_corrected_length="+str(len(full_sequence)))
                       print(full_sequence)
+                      print(time.time()-start)
+                      print(time.time()-start1)
+                      print("foo")
+                      print(time.time()-start2)
         else:
             f_match_left_position=reverse_orientation_forward_primer_alignment[0][3]
             f_match_right_position=reverse_orientation_forward_primer_alignment[0][4]
@@ -244,12 +249,18 @@ def main(argv):
                 if ((len(full_sequence)>=minimum_read_length_threshold) and (len(full_sequence)<=maximum_read_length_threshold)):
                     print(">" + str(seq_record.id)+"_corrected_length="+str(len(full_sequence)))
                     print(full_sequence)
+                    finish00 = time.time()-start
+                    finsih01 =time.time()-start1
+                    finsih02 =time.time()-start2
+                    print(finish00)
+                    print(finsih01)
+                    print("is this the end")
+                    print(finsih02)
 
 
 
 if __name__== "__main__":
-    with mp.Pool(processes=4) as p:
-        print(p.map(main,sys.argv[1:]))
+    main(sys.argv[1:])
 
     
 
