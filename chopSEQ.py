@@ -207,10 +207,6 @@ def main(argv):
                  if ((len(full_sequence)>=minimum_read_length_threshold) and (len(full_sequence)<=maximum_read_length_threshold)):
                       print(">" + str(seq_record.id)+"_corrected_length="+str(len(full_sequence)))
                       print(full_sequence)
-                      print(time.time()-start)
-                      print(time.time()-start1)
-                      print("foo")
-                      print(time.time()-start2)
         else:
             f_match_left_position=reverse_orientation_forward_primer_alignment[0][3]
             f_match_right_position=reverse_orientation_forward_primer_alignment[0][4]
@@ -249,13 +245,6 @@ def main(argv):
                 if ((len(full_sequence)>=minimum_read_length_threshold) and (len(full_sequence)<=maximum_read_length_threshold)):
                     print(">" + str(seq_record.id)+"_corrected_length="+str(len(full_sequence)))
                     print(full_sequence)
-                    finish00 = time.time()-start
-                    finsih01 =time.time()-start1
-                    finsih02 =time.time()-start2
-                    print(finish00)
-                    print(finsih01)
-                    print("is this the end")
-                    print(finsih02)
 
 
 
