@@ -104,10 +104,11 @@ ENV/
 *.swp.py
 *.swo.py
 #fa
-.fa
+*.fa
 #fasta
-.fasta
-.fastq
+*.fasta
+*.fastq
+
 #csv file and excel
 *.csv
 *.xlsx

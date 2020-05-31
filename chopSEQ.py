@@ -9,10 +9,12 @@
 # Dependencies:
 #	     Biopython is installed
 #	     EMBOSS etandem is in path
-# Version:   0.3 (2017-01-12)
+#            conconcert.futures
+#            numpy
+# Version:   0.3.1 (2020-05-29)
 # History:   Fixed the bugs associated with right overhang and included thresholds for final read lengths
 #	     Added dynamic tandem threshold and fixed a few bugs
-# Authors:   Umer Zeeshan Ijaz (Umer.Ijaz@glasgow.ac.uk)
+# Authors:   Umer Zeeshan Ijaz (Umer.Ijaz@glasgow.ac.uk), Young Sam Eugene (samuel.young.103@gmail.com)`
 #                 http://userweb.eng.gla.ac.uk/umer.ijaz
 # Created:   2017-06-28
 # License:   Copyright (c) 2017 Environmental'Omics Lab, University of Glasgow, UK
@@ -29,6 +31,7 @@
 #
 #            You should have received a copy of the GNU General Public License
 #            along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# Modifed:   2020-05-29
 # **************************************************************/
 import sys, getopt
 import numpy
@@ -87,11 +90,12 @@ def process_etandem_record(full_sequence,verbosity,tandem_min_repeat,tandem_max_
                  print ("Step 2: Removing tandom repeats (identity >= "+str(allowed_ident_threshold)+ ") in correctly arranged sequence" +  "[length="+str(t_match_length)+";score=" + str(t_match_score) + ";ident=" + str(t_match_ident) + ";count=" + str(t_match_count)+ ";consensus="+t_match_consensus+ "]")
                  print(t_left_string+'\x1b[6;30;44m'+t_tandom_repeat_1+'\x1b[0m'+ '\x1b[6;30;45m' + t_tandom_repeat_2+'\x1b[0m'+t_right_string)
         if t_match_ident>=allowed_ident_threshold:
-                 corrected_sequence=t_left_string+t_tandom_repeat_1+t_right_string
+            corrected_sequence=t_left_string+t_tandom_repeat_1+t_right_string
         else:
-                 corrected_sequence=full_sequence
+            corrected_sequence=full_sequence
     else:
         corrected_sequence=full_sequence
+        
     return corrected_sequence
 
 
@@ -140,12 +144,14 @@ def main(argv):
 	#Some of the references we used in writing the code
 	#Reference: http://biopython.org/DIST/docs/tutorial/Tutorial.html#htoc85
 	#Reference: https://stackoverflow.com/questions/287871/print-in-terminal-with-colors-using-pyton
-
+    #this allow the threads to open 
+    #with concurrent.futures.ThreadPoolExecutor() as executor:
+    #this allow the multiprocessor call and allow for the ability to print out the results
     with concurrent.futures.ProcessPoolExecutor() as executor:
-        results =[executor.submit(process_seq_records,seq_records,forward_primer,reverse_primer,verbosity,minimum_read_length_threshold,maximum_read_length_threshold) for seq_records in SeqIO.parse(input_file,"fasta")]
+        results =[executor.submit(process_seq_records, seq_record, forward_primer, reverse_primer, verbosity, minimum_read_length_threshold, maximum_read_length_threshold) for seq_record in SeqIO.parse(input_file,"fasta")]
 
-        for f in concurrent.futures.as_completed(results):
-            print(f.result())
+        for resultant in concurrent.futures.as_completed(results):
+            print(resultant.result())
 
 
 def process_seq_records(seq_record,forward_primer,reverse_primer,verbosity,minimum_read_length_threshold,maximum_read_length_threshold):
@@ -164,10 +170,14 @@ def process_seq_records(seq_record,forward_primer,reverse_primer,verbosity,minim
 
     if verbosity:
         print('\x1b[6;37;40m' + str(seq_record.id) + '\x1b[0m')
+    
+
     forward_orientation_forward_primer_alignment=pairwise2.align.localms(str(seq_record.seq),forward_primer,primer_match_score, primer_mismatch_score, primer_open_gap_score, primer_extend_gap_score, one_alignment_only=1)
+    
     forward_orientation_reverse_primer_alignment=pairwise2.align.localms(str(seq_record.seq),str(Seq(reverse_primer).reverse_complement()),primer_match_score,primer_mismatch_score, primer_open_gap_score, primer_extend_gap_score, one_alignment_only=1)
 
     reverse_orientation_forward_primer_alignment=pairwise2.align.localms(str(seq_record.seq),reverse_primer,primer_match_score,primer_mismatch_score, primer_open_gap_score, primer_extend_gap_score, one_alignment_only=1)
+    
     reverse_orientation_reverse_primer_alignment=pairwise2.align.localms(str(seq_record.seq),str(Seq(forward_primer).reverse_complement()),primer_match_score,primer_mismatch_score, primer_open_gap_score, primer_extend_gap_score, one_alignment_only=1)		
         #Find the correct orientation based on mean scores of primers matching
 
@@ -214,61 +224,59 @@ def process_seq_records(seq_record,forward_primer,reverse_primer,verbosity,minim
         full_sequence=process_etandem_record(full_sequence,verbosity,tandem_min_repeat,tandem_max_repeat,tandem_threshold,tandem_mismatch,tandem_identity_threshold)
         if not verbosity:
             if ((len(full_sequence)>=minimum_read_length_threshold) and (len(full_sequence)<=maximum_read_length_threshold)):
-                return ">" + str(seq_record.id)+"_corrected_length="+str(len(full_sequence))+"\n"+str(full_sequence)
-        else:
-            f_match_left_position=reverse_orientation_forward_primer_alignment[0][3]
-            f_match_right_position=reverse_orientation_forward_primer_alignment[0][4]
-            f_left_string=str(reverse_orientation_forward_primer_alignment[0][0][0:(f_match_left_position)])
-            f_match_string=str(reverse_orientation_forward_primer_alignment[0][0][f_match_left_position:f_match_right_position])
-            f_right_string=str(reverse_orientation_forward_primer_alignment[0][0][(f_match_right_position):])
-            if verbosity:
-                print ("Step 1: Match primers and correctly rearrange the sequence")
-                print ('Reverse Primer Match (Reverse Orientation):')
-                print(f_left_string + '\x1b[6;30;42m' + f_match_string + '\x1b[0m' + f_right_string)
+                return ">" + str(seq_record.id) + "_corrected_length=" + str(len(full_sequence)) + "\n" + str(full_sequence)
+    else:
+        f_match_left_position=reverse_orientation_forward_primer_alignment[0][3]
+        f_match_right_position=reverse_orientation_forward_primer_alignment[0][4]
+        f_left_string=str(reverse_orientation_forward_primer_alignment[0][0][0:(f_match_left_position)])
+        f_match_string=str(reverse_orientation_forward_primer_alignment[0][0][f_match_left_position:f_match_right_position])
+        f_right_string=str(reverse_orientation_forward_primer_alignment[0][0][(f_match_right_position):])
+        if verbosity:
+            print ("Step 1: Match primers and correctly rearrange the sequence")
+            print ('Reverse Primer Match (Reverse Orientation):')
+            print(f_left_string + '\x1b[6;30;42m' + f_match_string + '\x1b[0m' + f_right_string)
 
 
-            r_match_left_position=reverse_orientation_reverse_primer_alignment[0][3]
-            r_match_right_position=reverse_orientation_reverse_primer_alignment[0][4]
-            r_left_string=str(reverse_orientation_reverse_primer_alignment[0][0][0:(r_match_left_position)])
-            r_match_string=str(reverse_orientation_reverse_primer_alignment[0][0][r_match_left_position:r_match_right_position])
-            r_right_string=str(reverse_orientation_reverse_primer_alignment[0][0][(r_match_right_position):])
+        r_match_left_position=reverse_orientation_reverse_primer_alignment[0][3]
+        r_match_right_position=reverse_orientation_reverse_primer_alignment[0][4]
+        r_left_string=str(reverse_orientation_reverse_primer_alignment[0][0][0:(r_match_left_position)])
+        r_match_string=str(reverse_orientation_reverse_primer_alignment[0][0][r_match_left_position:r_match_right_position])
+        r_right_string=str(reverse_orientation_reverse_primer_alignment[0][0][(r_match_right_position):])
 		
             #See if there is a right-over hang after the reverse primer and remove it
-            ind_r=f_right_string.find(r_match_string.replace("-",""))
+        ind_r=f_right_string.find(r_match_string.replace("-",""))
 
 
-            if (ind_r > -1):
-                f_right_string=f_right_string[0:ind_r]
+        if (ind_r > -1):
+            f_right_string=f_right_string[0:ind_r]
 
 
-            if verbosity:
-                print ('Forward Primer Match (Reverse Orientation):')
-                print(r_left_string + '\x1b[6;30;43m' + r_match_string + '\x1b[0m' + r_right_string)
+        if verbosity:
+            print ('Forward Primer Match (Reverse Orientation):')
+            print(r_left_string + '\x1b[6;30;43m' + r_match_string + '\x1b[0m' + r_right_string)
                         
-            full_sequence=f_match_string + f_right_string + f_left_string
-            full_sequence=full_sequence.replace("-","")
-            full_sequence=str(Seq(full_sequence).reverse_complement())
+        full_sequence=f_match_string + f_right_string + f_left_string
+        full_sequence=full_sequence.replace("-","")
+        full_sequence=str(Seq(full_sequence).reverse_complement())
 
 
-            full_sequence=process_etandem_record(full_sequence,verbosity,tandem_min_repeat,tandem_max_repeat,tandem_threshold,tandem_mismatch,tandem_identity_threshold)
+        full_sequence=process_etandem_record(full_sequence,verbosity,tandem_min_repeat,tandem_max_repeat,tandem_threshold,tandem_mismatch,tandem_identity_threshold)
 
 
-            if not verbosity:
-                if ((len(full_sequence)>=minimum_read_length_threshold) and (len(full_sequence)<=maximum_read_length_threshold)):
+        if not verbosity:
+            if ((len(full_sequence)>=minimum_read_length_threshold) and (len(full_sequence)<=maximum_read_length_threshold)):
 
-                    return process_seq_records(seq_record,forward_primer,reverse_primer,verbosity,minimum_read_length_threshold,maximum_read_length_threshold)
-
+                return ">"+str(seq_record.id)+"_corrected_sequence="+str(len(full_sequence))+"\n"+str(full_sequence)
 
 
 if __name__== "__main__":
-    t1= time.perf_counter_ns()
+    microseconds = 0
+    t1= time.perf_counter()
     main(sys.argv[1:])
-    t2= time.perf_counter_ns()
-    donetimer = t2-t1
-    microseconds = donetimer % 1000
-    milliseconds = mircoseconds % 1000
-    seconds = milliseconds % 1000
-    mintues = seconds % 60
-    hours = mintues % 60 
-    print("%d : %d : %d : %d : %d"%(hours,mintues,seconds,milliseconds,microseconds))
+    t2= time.perf_counter()
+    finish = t2-t1
+    secs =  finish % 60 
+    mintues = int((finish/60)%60)
+    hours =  int(finish/3600)  
+    print("%d : %d : %d"%(hours,mintues,secs))
 
