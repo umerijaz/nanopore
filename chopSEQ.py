@@ -270,13 +270,5 @@ def process_seq_records(seq_record,forward_primer,reverse_primer,verbosity,minim
 
 
 if __name__== "__main__":
-    microseconds = 0
-    t1= time.perf_counter()
     main(sys.argv[1:])
-    t2= time.perf_counter()
-    finish = t2-t1
-    secs =  finish % 60 
-    mintues = int((finish/60)%60)
-    hours =  int(finish/3600)  
-    print("%d : %d : %d"%(hours,mintues,secs))
 
