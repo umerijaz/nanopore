@@ -8,10 +8,10 @@ Modified the program to use multprocessing to speed up and updated the code to r
 linux terminal 
 ./chopSEQ.py -i input_file -f foward_primer -r reserve_primer > output_file 
 
-table: 
-*** best times ***
-** fedora **
-#running times
+running times
+-------------
+
+
 |data sets|number|proccesing type|python3|times|
 |--------------------|-----|----------------------|-------|--------|
 |sample_travis2_p2.fa|419|Multithreading usage|(python3)|4:42:33|
