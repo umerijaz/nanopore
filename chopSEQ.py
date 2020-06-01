@@ -143,8 +143,6 @@ def main(argv):
 	#Some of the references we used in writing the code
 	#Reference: http://biopython.org/DIST/docs/tutorial/Tutorial.html#htoc85
 	#Reference: https://stackoverflow.com/questions/287871/print-in-terminal-with-colors-using-pyton
-    #this allow the threads to open 
-    #with concurrent.futures.ThreadPoolExecutor() as executor:
     #this allow the multiprocessor call and allow for the ability to print out the results
     with concurrent.futures.ProcessPoolExecutor() as executor:
         results =[executor.submit(process_seq_records, seq_record, forward_primer, reverse_primer, verbosity, minimum_read_length_threshold, maximum_read_length_threshold) for seq_record in SeqIO.parse(input_file,"fasta")]
