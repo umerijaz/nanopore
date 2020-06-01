@@ -11,7 +11,11 @@ Speed test conclude that more processors would reduce time. Multithreading is no
 
 linux terminal or mac terminals
 
+First make sure your default python = python3 
+
 ./chopSEQ.py -i input_file -f foward_primer -r reserve_primer > output_file 
+
+otherwise python3 ./chopSEQ.py -i input_file -f foward_primer -r reversre_primer > output_file 
 
 running times
 -------------
