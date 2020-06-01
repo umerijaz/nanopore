@@ -3,9 +3,12 @@ Scripts for processing short amplicon reads from Oxford Nanopore. For details, p
 ST Calus, UZ Ijaz, and A Pinto. NanoAmpli-Seq: A workflow for amplicon sequencing from mixed microbial communities on the nanopore sequencing platform. bioRxiv 244517, 2018. DOI:10.1101/244517
 
 
-Modified the program to use multprocessing to speed up and updated the code to run in python3.  Decreased the overall time by about half for the changing it to python3. Running several speed test. 
+Modified the program to run in python3 then add in multprocessing to decrease time overall. Ran several test to see what preformed the best.  Decreased the overall time by about half for the changing it to python3. 
 
-linux terminal 
+Speed test conclude that more processors would reduce time. Multithreading is not optimal for this problem. Just transitioning the older code into python3 reduced time significantly. 
+
+linux terminal or mac terminals
+
 ./chopSEQ.py -i input_file -f foward_primer -r reserve_primer > output_file 
 
 running times
