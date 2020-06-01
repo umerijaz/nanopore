@@ -29,6 +29,6 @@ running times
 |sample_travis2_p2.fa|419|Eight processor used|(python3)|1:15:52|
 |sample_travis2_p4.1.fa|589|single processor used   |python3|1:54:53|
 |sample_travis2_p4.1.fa|589|four processors used|(python3)|1:26:40|
-|sample_travis_p4.1.fa|589|Eight processors used|(python3)|44:51|
+|sample_travis2_p4.1.fa|589|Eight processors used|(python3)|44:51|
 
 
