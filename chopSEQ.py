@@ -40,12 +40,11 @@ import math
 from Bio import SeqIO
 from Bio import pairwise2
 from Bio.Seq import Seq
-import time
 import concurrent.futures
 
 def usage():
     print ('Usage:')
-    print ('\tpython chopSEQ.py -i <input_file> -f <forward_primer> -r <reverse_primer> > <filtered_fasta_file>-o output_file')
+    print ('\tpython chopSEQ.py -i <input_file> -f <forward_primer> -r <reverse_primer> > <filtered_fasta_file> ')
     print ('''
     Other options are:
     -l (--minimum_length)   After processing, ignore reads below this length threshold 
