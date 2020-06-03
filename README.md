@@ -5,6 +5,11 @@ ST Calus, UZ Ijaz, and A Pinto. NanoAmpli-Seq: A workflow for amplicon sequencin
 
 Sam Young
 
+dependencenies add
+
+psutil 
+biopython
+
 Modified the program to run in python3 then add in multprocessing to decrease time overall. Ran several test to see what preformed the best.  Decreased the overall time by about half for the changing it to python3. 
 
 Speed test conclude that more processors would reduce time. Multithreading is not optimal for this problem. Just transitioning the older code into python3 reduced time significantly. 
@@ -13,9 +18,13 @@ linux terminal or mac terminals
 
 First make sure your default python = python3 
 
-./chopSEQ.py -i input_file -f foward_primer -r reserve_primer > output_file 
+./chopSEQ.py -h this can help you understand some of the changes add into since last time
 
-otherwise python3 chopSEQ.py -i input_file -f foward_primer -r reversre_primer > output_file 
+python3 chopSEQ.py -h 
+
+./chopSEQ.py -i input_file -f foward_primer -r reserve_primer -p maxiumum machine number of processors please > output_file 
+
+python3 chopSEQ.py -i input_file -f foward_primer -r reversre_primer -p single processor > output_file 
 
 running times
 -------------

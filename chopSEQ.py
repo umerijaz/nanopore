@@ -10,7 +10,8 @@
 #	     Biopython is installed
 #	     EMBOSS etandem is in path
 #            conconcert.futures
-# Version:   0.3.1 (2020-05-29)
+#            psutils
+# Version:   0.3.3 (2020-05-29)
 # History:   Fixed the bugs associated with right overhang and included thresholds for final read lengths
 #	     Added dynamic tandem threshold and fixed a few bugs
 # Authors:   Umer Zeeshan Ijaz (Umer.Ijaz@glasgow.ac.uk), Young Sam Eugene (samuel.young.103@gmail.com)`
@@ -40,15 +41,20 @@ from Bio import SeqIO
 from Bio import pairwise2
 from Bio.Seq import Seq
 import concurrent.futures
+import psutil 
 
 def usage():
     print ('Usage:')
-    print ('\tpython chopSEQ.py -i <input_file> -f <forward_primer> -r <reverse_primer> > <filtered_fasta_file> ')
+    print("\tYour total amount of cpu: %d\n\tHalf the amount of cpu is %d"%(psutil.cpu_count(),psutil.cpu_count(logical=False)))
+    print ('\tpython chopSEQ.py -i <input_file> -f <forward_primer> -r <reverse_primer> -p <number of process>  -t > <filtered_fasta_file> ')
     print ('''
     Other options are:
     -l (--minimum_length)   After processing, ignore reads below this length threshold 
     -m (--maximum_length)   After processing, ignore reads above this length threshold
-    -v	                   Verbosity switch to visualise primers across the length of the reads
+    -v	                    Verbosity switch to visualise primers across the length of the reads
+    -t (--threading)        this allow for multithreading at maximum threads
+    -p (--processing)       This allow for the user to input the number of process the user want
+                            to use default is a single processor being used 
     ''')
 
 def run_prog(prog):
@@ -104,16 +110,17 @@ def main(argv):
 
 	# *Default parameters *************	
     # *********************************/
-    verbosity=0
+    verbosity  = 0  
+    processing = 1
+    threading  = 0
     #Used in Step 3:
-    minimum_read_length_threshold=0
-    maximum_read_length_threshold=100000
-
-
+    minimum_read_length_threshold = 0
+    maximum_read_length_threshold = 100000
+    print(len(argv))
         
         #this code is used to put options in the arguments in the proper place  I'm having to spilit up the options in this case becuse they do not read from commandline properly
     try:
-             opts,args=getopt.getopt(argv,"hi:f:r:vl:m:",["input_file","forward_primer","reverse_primer","minim    um_length","maximum_length"])
+        opts,args=getopt.getopt(argv,"hi:f:r:vl:m:p:t",["input_file","forward_primer","reverse_primer","minimum_length","maximum_length","multiprocessing","multithreading"])
     except getopt.GetoptError:
             usage()
             sys.exit(2)
@@ -127,27 +134,50 @@ def main(argv):
                input_file=arg
            elif opt in ("-f","--forward_primer"):
                forward_primer=arg
+               print(arg)
            elif opt in ("-r","--reverse_primer"):
                reverse_primer=arg
            elif opt in ("-l","--minimum_length"):
                minimum_read_length_threshold=int(arg)
+               print(minimum_read_length_threshold)
            elif opt in ("-m","--maximum_length"):
                maximum_read_length_threshold=int(arg)
+               print(maximum_read_length_threshold)
+           elif opt in ("-p","--processing"):
+               processing = int(arg)
+               print(processing)
+           elif opt in ("-t","--threading"):
+               threading = 1
     if (input_file=='' or forward_primer=='' or reverse_primer==''):
         usage()
         sys.exit(2)
 
 
-
 	#Some of the references we used in writing the code
 	#Reference: http://biopython.org/DIST/docs/tutorial/Tutorial.html#htoc85
 	#Reference: https://stackoverflow.com/questions/287871/print-in-terminal-with-colors-using-pyton
-    #this allow the multiprocessor call and allow for the ability to print out the results
-    with concurrent.futures.ProcessPoolExecutor() as executor:
-        results =[executor.submit(process_seq_records, seq_record, forward_primer, reverse_primer, verbosity, minimum_read_length_threshold, maximum_read_length_threshold) for seq_record in SeqIO.parse(input_file,"fasta")]
+    #this allow the multiprocessor call and allow for the ability
+    if processing == psutil.cpu_count():
+        with concurrent.futures.ProcessPoolExecutor() as executor:
+            results =[executor.submit(process_seq_records, seq_record, forward_primer, reverse_primer, verbosity, minimum_read_length_threshold, maximum_read_length_threshold) for seq_record in SeqIO.parse(input_file,"fasta")]
 
-        for resultant in concurrent.futures.as_completed(results):
-            print(resultant.result())
+            for resultant in concurrent.futures.as_completed(results):
+                print(resultant.result())
+
+
+    elif processing:
+        with concurrent.futures.ProcessPoolExecutor(max_workers=processing) as executor:
+            results =[executor.submit(process_seq_records, seq_record, forward_primer, reverse_primer, verbosity, minimum_read_length_threshold, maximum_read_length_threshold) for seq_record in SeqIO.parse(input_file,"fasta")]
+
+            for resultant in concurrent.futures.as_completed(results):
+                print(resultant.result())
+
+    elif threading:
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            results = [executor.submit(process_seq_records,seq_record,forward_primer,reverse_primer,verbosity,minimum_read_length_threshold,maximum_read_length_threshold) for seq_record in SeqIO.parse(input_file,"fasta")]
+            for resultant in concurrent.futures.as_completed(results):
+                print(resultant.result())
+
 
 
 def process_seq_records(seq_record,forward_primer,reverse_primer,verbosity,minimum_read_length_threshold,maximum_read_length_threshold):
