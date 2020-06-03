@@ -10,7 +10,7 @@
 #	     Biopython is installed
 #	     EMBOSS etandem is in path
 #            conconcert.futures
-#            psutils
+#            psutil
 # Version:   0.3.3 (2020-05-29)
 # History:   Fixed the bugs associated with right overhang and included thresholds for final read lengths
 #	     Added dynamic tandem threshold and fixed a few bugs
