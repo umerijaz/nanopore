@@ -116,7 +116,6 @@ def main(argv):
     #Used in Step 3:
     minimum_read_length_threshold = 0
     maximum_read_length_threshold = 100000
-    print(len(argv))
         
         #this code is used to put options in the arguments in the proper place  I'm having to spilit up the options in this case becuse they do not read from commandline properly
     try:
@@ -134,18 +133,14 @@ def main(argv):
                input_file=arg
            elif opt in ("-f","--forward_primer"):
                forward_primer=arg
-               print(arg)
            elif opt in ("-r","--reverse_primer"):
                reverse_primer=arg
            elif opt in ("-l","--minimum_length"):
                minimum_read_length_threshold=int(arg)
-               print(minimum_read_length_threshold)
            elif opt in ("-m","--maximum_length"):
                maximum_read_length_threshold=int(arg)
-               print(maximum_read_length_threshold)
            elif opt in ("-p","--processing"):
                processing = int(arg)
-               print(processing)
            elif opt in ("-t","--threading"):
                threading = 1
     if (input_file=='' or forward_primer=='' or reverse_primer==''):
