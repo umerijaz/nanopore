@@ -8,6 +8,7 @@ Sam Young
 dependencenies add
 
 psutil 
+
 biopython
 
 Modified the program to run in python3 then add in multprocessing to decrease time overall. Ran several test to see what preformed the best.  Decreased the overall time by about half for the changing it to python3. 
