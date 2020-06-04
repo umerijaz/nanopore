@@ -143,7 +143,7 @@ def main(argv):
                processing = int(arg)
            elif opt in ("-t","--threading"):
                threading = 1
-    if (input_file=='' or forward_primer=='' or reverse_primer==''):
+    if (input_file=='' or forward_primer=='' or reverse_primer=='' or  porcessing <=0 ):
         usage()
         sys.exit(2)
 
