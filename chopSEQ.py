@@ -33,7 +33,8 @@
 #            along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # Modifed:   2020-05-29
 # **************************************************************/
-import sys, getopt
+from getopt import getopt, GetoptError 
+from sys import argv
 import numpy
 import subprocess
 import math
@@ -41,7 +42,8 @@ from Bio import SeqIO
 from Bio import pairwise2
 from Bio.Seq import Seq
 import concurrent.futures
-from psutil import cpu_count 
+from psutil import cpu_count
+from time import perf_counter 
 
 def usage():
     print ('Usage:')
@@ -103,7 +105,7 @@ def process_etandem_record(full_sequence,verbosity,tandem_min_repeat,tandem_max_
     return corrected_sequence
 
 
-def main(argv):
+def main(arguv):
     input_file=''
     forward_primer=''
     reverse_primer=''
@@ -119,8 +121,8 @@ def main(argv):
         
         #this code is used to put options in the arguments in the proper place  I'm having to spilit up the options in this case becuse they do not read from commandline properly
     try:
-        opts,args=getopt.getopt(argv,"hi:f:r:vl:m:p:t",["input_file","forward_primer","reverse_primer","minimum_length","maximum_length","multiprocessing","multithreading"])
-    except getopt.GetoptError:
+        opts,args=getopt(arguv,"hi:f:r:vl:m:p:t",["input_file","forward_primer","reverse_primer","minimum_length","maximum_length","multiprocessing","multithreading"])
+    except GetoptError:
             usage()
             sys.exit(2)
     for opt, arg in opts:
@@ -291,5 +293,16 @@ def process_seq_records(seq_record,forward_primer,reverse_primer,verbosity,minim
 
 
 if __name__== "__main__":
-    main(sys.argv[1:])
+    t1 = perf_counter()
+    main(argv[1:])
+    t2 = perf_counter()
+
+    finish = t2-t1 
+
+    secs = finish % 60
+    mins = finish /60 % 60
+    hours = finish / 3600 % 24
+
+
+    print("Time trails for 3 processors %d : %d : %d" %(hours, mins , secs))
 

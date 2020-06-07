@@ -5,11 +5,13 @@ ST Calus, UZ Ijaz, and A Pinto. NanoAmpli-Seq: A workflow for amplicon sequencin
 
 Sam Young
 
-dependencenies add
+dependencenies needed 
 
 psutil 
 
 biopython
+
+concurrent
 
 Modified the program to run in python3 then add in multprocessing to decrease time overall. Ran several test to see what preformed the best.  Decreased the overall time by about half for the changing it to python3. 
 
@@ -36,9 +38,10 @@ running times
 |sample_travis2_p2.fa|419|Multithreading usage|(python3)|4:42:33|
 |sample_travis2_p2.fa|419|Single proccesors used|(python3)|2:33:51|
 |sample_travis2_p2.fa|419|Four processor used|(python3)|1:43:39|
-|sample_travis2_p2.fa|419|Eight processor used|(python3)|1:15:52|
-|sample_travis2_p4.1.fa|589|single processor used   |python3|1:54:53|
+|sample_travis2_p2.fa|419|Eight processor used|(python3)|**1:15:52**|
+|sample_travis2_p4.1.fa|589|single processor used|(python3)|1:54:53|
+|sample_travis2_p4.1.fa|589|three processors used|(python3)|1:26:40|
 |sample_travis2_p4.1.fa|589|four processors used|(python3)|1:26:40|
-|sample_travis2_p4.1.fa|589|Eight processors used|(python3)|44:51|
+|sample_travis2_p4.1.fa|589|Eight processors used|(python3)|**44:51**|
 
 
