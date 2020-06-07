@@ -41,11 +41,11 @@ from Bio import SeqIO
 from Bio import pairwise2
 from Bio.Seq import Seq
 import concurrent.futures
-import psutil 
+from psutil import cpu_count 
 
 def usage():
     print ('Usage:')
-    print("\tYour total amount of cpu: %d\n\tHalf the amount of cpu is %d"%(psutil.cpu_count(),psutil.cpu_count(logical=False)))
+    print("\tYour total amount of cpu: %d\n\tHalf the amount of cpu is %d"%(cpu_count(),cpu_count(logical=False)))
     print ('\tpython chopSEQ.py -i <input_file> -f <forward_primer> -r <reverse_primer> -p <number of process>  -t > <filtered_fasta_file> ')
     print ('''
     Other options are:
@@ -152,7 +152,7 @@ def main(argv):
 	#Reference: http://biopython.org/DIST/docs/tutorial/Tutorial.html#htoc85
 	#Reference: https://stackoverflow.com/questions/287871/print-in-terminal-with-colors-using-pyton
     #this allow the multiprocessor call and allow for the ability
-    if processing == psutil.cpu_count():
+    if processing == cpu_count():
         with concurrent.futures.ProcessPoolExecutor() as executor:
             results =[executor.submit(process_seq_records, seq_record, forward_primer, reverse_primer, verbosity, minimum_read_length_threshold, maximum_read_length_threshold) for seq_record in SeqIO.parse(input_file,"fasta")]
 
