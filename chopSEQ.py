@@ -35,11 +35,11 @@
 # **************************************************************/
 from getopt import getopt, GetoptError 
 from sys import argv, exit
-import numpy
+from numpy import mean 
 from subprocess import Popen,PIPE,STDOUT  
 from  math  import floor
-from Bio import SeqIO
-from Bio import pairwise2
+from Bio.SeqIO import parse 
+from Bio.pairwise2 import align 
 from Bio.Seq import Seq
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from psutil import cpu_count
@@ -156,7 +156,7 @@ def main(arguv):
     #this allow the multiprocessor call and allow for the ability
     if processing == cpu_count():
         with ProcessPoolExecutor() as executor:
-            results =[executor.submit(process_seq_records, seq_record, forward_primer, reverse_primer, verbosity, minimum_read_length_threshold, maximum_read_length_threshold) for seq_record in SeqIO.parse(input_file,"fasta")]
+            results =[executor.submit(process_seq_records, seq_record, forward_primer, reverse_primer, verbosity, minimum_read_length_threshold, maximum_read_length_threshold) for seq_record in parse(input_file,"fasta")]
 
             for resultant in as_completed(results):
                 print(resultant.result())
@@ -164,14 +164,14 @@ def main(arguv):
 
     elif processing:
         with ProcessPoolExecutor(max_workers=processing) as executor:
-            results =[executor.submit(process_seq_records, seq_record, forward_primer, reverse_primer, verbosity, minimum_read_length_threshold, maximum_read_length_threshold) for seq_record in SeqIO.parse(input_file,"fasta")]
+            results =[executor.submit(process_seq_records, seq_record, forward_primer, reverse_primer, verbosity, minimum_read_length_threshold, maximum_read_length_threshold) for seq_record in parse(input_file,"fasta")]
 
             for resultant in as_completed(results):
                 print(resultant.result())
 
     elif threading:
         with ThreadPoolExecutor() as executor:
-            results = [executor.submit(process_seq_records,seq_record,forward_primer,reverse_primer,verbosity,minimum_read_length_threshold,maximum_read_length_threshold) for seq_record in SeqIO.parse(input_file,"fasta")]
+            results = [executor.submit(process_seq_records,seq_record,forward_primer,reverse_primer,verbosity,minimum_read_length_threshold,maximum_read_length_threshold) for seq_record in parse(input_file,"fasta")]
             for resultant in as_completed(results):
                 print(resultant.result())
 
@@ -195,16 +195,16 @@ def process_seq_records(seq_record,forward_primer,reverse_primer,verbosity,minim
         print('\x1b[6;37;40m' + str(seq_record.id) + '\x1b[0m')
     
 
-    forward_orientation_forward_primer_alignment=pairwise2.align.localms(str(seq_record.seq),forward_primer,primer_match_score, primer_mismatch_score, primer_open_gap_score, primer_extend_gap_score, one_alignment_only=1)
+    forward_orientation_forward_primer_alignment=align.localms(str(seq_record.seq),forward_primer,primer_match_score, primer_mismatch_score, primer_open_gap_score, primer_extend_gap_score, one_alignment_only=1)
     
-    forward_orientation_reverse_primer_alignment=pairwise2.align.localms(str(seq_record.seq),str(Seq(reverse_primer).reverse_complement()),primer_match_score,primer_mismatch_score, primer_open_gap_score, primer_extend_gap_score, one_alignment_only=1)
+    forward_orientation_reverse_primer_alignment=align.localms(str(seq_record.seq),str(Seq(reverse_primer).reverse_complement()),primer_match_score,primer_mismatch_score, primer_open_gap_score, primer_extend_gap_score, one_alignment_only=1)
 
-    reverse_orientation_forward_primer_alignment=pairwise2.align.localms(str(seq_record.seq),reverse_primer,primer_match_score,primer_mismatch_score, primer_open_gap_score, primer_extend_gap_score, one_alignment_only=1)
+    reverse_orientation_forward_primer_alignment=align.localms(str(seq_record.seq),reverse_primer,primer_match_score,primer_mismatch_score, primer_open_gap_score, primer_extend_gap_score, one_alignment_only=1)
     
-    reverse_orientation_reverse_primer_alignment=pairwise2.align.localms(str(seq_record.seq),str(Seq(forward_primer).reverse_complement()),primer_match_score,primer_mismatch_score, primer_open_gap_score, primer_extend_gap_score, one_alignment_only=1)		
+    reverse_orientation_reverse_primer_alignment=align.localms(str(seq_record.seq),str(Seq(forward_primer).reverse_complement()),primer_match_score,primer_mismatch_score, primer_open_gap_score, primer_extend_gap_score, one_alignment_only=1)		
         #Find the correct orientation based on mean scores of primers matching
 
-    if numpy.mean([forward_orientation_forward_primer_alignment[0][2],forward_orientation_reverse_primer_alignment[0][2]]) > numpy.mean([reverse_orientation_forward_primer_alignment[0][2],reverse_orientation_reverse_primer_alignment[0][2]]):
+    if mean([forward_orientation_forward_primer_alignment[0][2],forward_orientation_reverse_primer_alignment[0][2]]) > mean([reverse_orientation_forward_primer_alignment[0][2],reverse_orientation_reverse_primer_alignment[0][2]]):
 
 
         f_match_left_position=forward_orientation_forward_primer_alignment[0][3]
