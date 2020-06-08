@@ -41,7 +41,7 @@ import math
 from Bio import SeqIO
 from Bio import pairwise2
 from Bio.Seq import Seq
-import concurrent.futures
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from psutil import cpu_count
 from time import perf_counter 
 
@@ -155,24 +155,24 @@ def main(arguv):
 	#Reference: https://stackoverflow.com/questions/287871/print-in-terminal-with-colors-using-pyton
     #this allow the multiprocessor call and allow for the ability
     if processing == cpu_count():
-        with concurrent.futures.ProcessPoolExecutor() as executor:
+        with ProcessPoolExecutor() as executor:
             results =[executor.submit(process_seq_records, seq_record, forward_primer, reverse_primer, verbosity, minimum_read_length_threshold, maximum_read_length_threshold) for seq_record in SeqIO.parse(input_file,"fasta")]
 
-            for resultant in concurrent.futures.as_completed(results):
+            for resultant in as_completed(results):
                 print(resultant.result())
 
 
     elif processing:
-        with concurrent.futures.ProcessPoolExecutor(max_workers=processing) as executor:
+        with ProcessPoolExecutor(max_workers=processing) as executor:
             results =[executor.submit(process_seq_records, seq_record, forward_primer, reverse_primer, verbosity, minimum_read_length_threshold, maximum_read_length_threshold) for seq_record in SeqIO.parse(input_file,"fasta")]
 
-            for resultant in concurrent.futures.as_completed(results):
+            for resultant in as_completed(results):
                 print(resultant.result())
 
     elif threading:
-        with concurrent.futures.ThreadPoolExecutor() as executor:
+        with ThreadPoolExecutor() as executor:
             results = [executor.submit(process_seq_records,seq_record,forward_primer,reverse_primer,verbosity,minimum_read_length_threshold,maximum_read_length_threshold) for seq_record in SeqIO.parse(input_file,"fasta")]
-            for resultant in concurrent.futures.as_completed(results):
+            for resultant in as_completed(results):
                 print(resultant.result())
 
 
