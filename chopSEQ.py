@@ -34,9 +34,9 @@
 # Modifed:   2020-05-29
 # **************************************************************/
 from getopt import getopt, GetoptError 
-from sys import argv, exit`
+from sys import argv, exit
 import numpy
-import subprocess
+from subprocess import Popen,PIPE,STDOUT  
 import math
 from Bio import SeqIO
 from Bio import pairwise2
@@ -60,7 +60,7 @@ def usage():
     ''')
 
 def run_prog(prog):
-    p = subprocess.Popen(prog, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    p = Popen(prog, shell=True, stdout=PIPE, stderr=STDOUT)
     returned_list=[]
     for line in iter(p.stdout.readline, b''):
         returned_list.append(line.rstrip())
