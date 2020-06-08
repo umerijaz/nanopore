@@ -37,7 +37,7 @@ from getopt import getopt, GetoptError
 from sys import argv, exit
 import numpy
 from subprocess import Popen,PIPE,STDOUT  
-import math
+from  math  import floor
 from Bio import SeqIO
 from Bio import pairwise2
 from Bio.Seq import Seq
@@ -90,7 +90,7 @@ def process_etandem_record(full_sequence,verbosity,tandem_min_repeat,tandem_max_
 		#As the tandem repeat becomes longer, there is a high probability of incorporating the errors
 		#For this purpose we divide the range from tandem_min_repeat to tandem_max_repeat in 80 parts
 		#and then subtract the number of parts from the tandem_identity_threshold
-        allowed_ident_threshold=(tandem_identity_threshold - math.floor(t_match_length / float((float(tandem_max_repeat)-float(tandem_min_repeat))/80.0)))
+        allowed_ident_threshold=(tandem_identity_threshold - floor( t_match_length / (tandem_max_repeat-tandem_min_repeat) / 80.0))
         if verbosity:
             if t_match_ident>=allowed_ident_threshold:
                  print ("Step 2: Removing tandom repeats (identity >= "+str(allowed_ident_threshold)+ ") in correctly arranged sequence" +  "[length="+str(t_match_length)+";score=" + str(t_match_score) + ";ident=" + str(t_match_ident) + ";count=" + str(t_match_count)+ ";consensus="+t_match_consensus+ "]")
