@@ -43,7 +43,7 @@ from Bio.pairwise2 import align
 from Bio.Seq import Seq
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from psutil import cpu_count
-from time import perf_counter 
+#from time import perf_counter 
 
 def usage():
     print ('Usage:')
@@ -293,16 +293,6 @@ def process_seq_records(seq_record,forward_primer,reverse_primer,verbosity,minim
 
 
 if __name__== "__main__":
-    t1 = perf_counter()
     main(argv[1:])
-    t2 = perf_counter()
 
-    finish = t2-t1 
-
-    secs = finish % 60
-    mins = finish /60 % 60
-    hours = finish / 3600 % 24
-
-
-    print("Time trails for 3 processors %d : %d : %d" %(hours, mins , secs))
 
