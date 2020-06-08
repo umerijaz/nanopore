@@ -34,7 +34,7 @@
 # Modifed:   2020-05-29
 # **************************************************************/
 from getopt import getopt, GetoptError 
-from sys import argv
+from sys import argv, exit`
 import numpy
 import subprocess
 import math
@@ -124,11 +124,11 @@ def main(arguv):
         opts,args=getopt(arguv,"hi:f:r:vl:m:p:t",["input_file","forward_primer","reverse_primer","minimum_length","maximum_length","multiprocessing","multithreading"])
     except GetoptError:
             usage()
-            sys.exit(2)
+            exit(2)
     for opt, arg in opts:
            if opt == '-h':
                 usage()
-                sys.exit()
+                exit()
            elif opt == '-v':
                verbosity=1
            elif opt in ("-i","--input_file"):
@@ -147,7 +147,7 @@ def main(arguv):
                threading = 1
     if input_file=='' or forward_primer=='' or reverse_primer=='' or  processing <=0 or processing > cpu_count():
         usage()
-        sys.exit(2)
+        exit(2)
 
 
 	#Some of the references we used in writing the code
