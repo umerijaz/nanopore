@@ -25,11 +25,11 @@ First make sure your default python = python3
 
 python3 chopSEQ.py -h 
 
-This will allow the computer to run on six all core if the computer has that many otherwise it'll send you to usage 
+This will allow the computer to run on three cores hopefully will maximum the timing
 
 ./chopSEQ.py -i input_file -f foward_primer -r reservser_primer -p 3 > output_file 
 
-python3 chopSEQ.py -i input_file -f foward_primers -r reverse_primers -p 3 > \ >>  output_file 
+python3 chopSEQ.py -i input_file -f foward_primers -r reverse_primeRs -p 3 > \ >>  output_file 
 
 this will allow the user to run on a single processor
 
