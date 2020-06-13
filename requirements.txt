@@ -1,3 +1,4 @@
 psutil
 biopython 
 wheel
+vsearch

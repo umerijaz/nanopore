@@ -30,22 +30,23 @@
 #            You should have received a copy of the GNU General Public License
 #            along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # **************************************************************/
-import os,os.path
-import sys, getopt
-import time,datetime
-import numpy
-import subprocess
-import math
-from Bio import SeqIO
+from os import stat, remove, makedirs, pathsep , access , X_OK, environ 
+from os.path import exists,isfile,split, join 
+from sys import argv,exit
+from getopt import getopt, GetoptError
+import datetime.datetime from fromtimestamp
+import time from time, strftime 
+from subprocess import Popen, PIPE, STDOUT 
+from Bio.SeqIO import parse`
 from Bio import AlignIO
 from Bio.Align import AlignInfo
 from Bio import pairwise2
 from Bio.Seq import Seq
 
 def usage():
-	print 'Usage:'
-	print '\tpython nanoCLUST.py -i <input_file>'
-	print '''
+	print ('Usage:')
+	print ('\tpython nanoCLUST.py -i <input_file>')
+	print ('''
 	Other options are:
 	-s (--split_option)	Accepts a comma-delimited list of coordinates to split, e.g, 
 				"0,200,400,1500" or a single number of required segments
@@ -63,41 +64,44 @@ def usage():
 
 	cat *_barcode.fa > multiplexed.fa
 
-	'''
+	''')
 
 def create_folder(directory):
-	if not os.path.exists(directory):
-		print 'Creating the folder ' + directory
-    		os.makedirs(directory)
+	if not exists(directory):
+		print ('Creating the folder ' + directory)
+    		makedirs(directory)
 	else:
-		print 'Folder ' + directory + ' already exists! Skipping!'
+		print ('Folder ' + directory + ' already exists! Skipping!')
 
 def is_empty(fname):
-	if os.stat(fname).st_size == 0:
+	if stat(fname).st_size == 0:
 		return 0
 	else:
 		return 1
 
 def remove_file(path):
-	print 'Removing ' + path
-	os.remove(path)
+	print ('Removing ' + path)
+	remove(path)
 
 def print_time_stamp(message):
     print datetime.datetime.fromtimestamp(time.time()).strftime('[%Y-%m-%d %H:%M:%S] ')+message
 
 #check if the program exists and return it's location, otherwise return None
-def which(program):
-    def is_exe(fpath):
-        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+class file_exists(program):
+    __init__(self,program):
+	self.program = program
 
-    fpath, fname = os.path.split(program)
+    def is_exe(fpath):
+        return isfile(fpath) and access(fpath, X_OK)
+
+    fpath, fname = split(self.program)
     if fpath:
-        if is_exe(program):
-            return program
+        if is_exe(self.program):
+            return self.program
     else:
-        for path in os.environ["PATH"].split(os.pathsep):
+        for path in environ["PATH"].split(pathsep):
             path = path.strip('"')
-            exe_file = os.path.join(path, program)
+            exe_file = join(path, self.program)
             if is_exe(exe_file):
                 return exe_file
 
@@ -105,20 +109,20 @@ def which(program):
 
 def print_cond(cond,true_message,false_message):
     if cond:
-    	print true_message
+    	print (true_message)
     else:
-	print false_message	
+	print (false_message)	
 
 def print_prog_status(prog,loc):
     if loc != None:
-	print 'Checking for \'' + prog + '\': found '+ loc
+	print ('Checking for \'' + prog + '\': found '+ loc)
     else:
-	print 'Checking for \'' + prog + '\': ERROR - could not find \''+prog+'\''
-	print 'Exiting.'
-	sys.exit(1)
+	print ('Checking for \'' + prog + '\': ERROR - could not find \''+prog+'\'')
+	print ('Exiting.')
+	exit(1)
 
 def run_prog(prog):
-	p = subprocess.Popen(prog, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+	p = Popen(prog, shell=True, stdout=PIPE, stderr=STDOUT)
 	returned_list=[]
 	for line in iter(p.stdout.readline, b''):
 		returned_list.append(line.rstrip())
@@ -134,8 +138,8 @@ def split_fasta(directory_name,file_name,parts,average_length):
 		coordinates=parts.split(",")
 		coordinates=[int(x) for x in coordinates]
 		if ((divmod(len(coordinates),2)[1]) !=0):
-			print "Error - Coordinates are not well defined"
-			sys.exit(2)
+			print ("Error - Coordinates are not well defined")
+			exit(2)
 	else:
 		#Split into parts
 		results=divmod(int(average_length),int(parts))
@@ -164,7 +168,7 @@ def split_fasta(directory_name,file_name,parts,average_length):
 	return ind-1
 	
 def extract_uc_record(file_name):
-	print file_name
+	print(file_name)
 	otus_assignments=dict()
 
 	iff=open(file_name,"r")
@@ -196,7 +200,7 @@ def run_vsearch(prog_name,directory_name,file_name,file_prefix):
 		print_time_stamp('Skipping ' + cmd + ' and rest as ' + iname + ' is empty')
 		return ran_correctly
  
-	print cmd
+	print (cmd)
 	run_prog(cmd)
 	print_time_stamp('Generated ' + oname)
 
@@ -211,7 +215,7 @@ def run_vsearch(prog_name,directory_name,file_name,file_prefix):
                 print_time_stamp('Skipping ' + cmd + ' and rest as ' + iname + ' is empty')
                 return ran_correctly
 
-	print cmd
+	print(cmd)
 	run_prog(cmd)
 	print_time_stamp('Generated ' + oname)
 
@@ -226,7 +230,7 @@ def run_vsearch(prog_name,directory_name,file_name,file_prefix):
                 return ran_correctly
 
 
-        print cmd
+        print(cmd)
         run_prog(cmd)
         print_time_stamp('Generated ' + oname)
 
@@ -241,7 +245,7 @@ def run_vsearch(prog_name,directory_name,file_name,file_prefix):
                 return ran_correctly
 
 
-        print cmd
+        print(cmd)
         run_prog(cmd)
         print_time_stamp('Generated ' + oname)
 
@@ -267,7 +271,7 @@ def run_vsearch(prog_name,directory_name,file_name,file_prefix):
                 print_time_stamp('Skipping ' + cmd + ' and rest as ' + iname + ' is empty')
                 return ran_correctly
 
-        print cmd
+        print(cmd)
         run_prog(cmd)
         print_time_stamp('Generated ' + oname)
 
@@ -277,7 +281,7 @@ def run_vsearch(prog_name,directory_name,file_name,file_prefix):
 	remove_file(directory_name+'/'+file_prefix+'_r.fasta')
 	return ran_correctly		
 
-def main(argv):
+def main(arguv):
 	input_file=''
 	split_option='5'
 	output_folder='nanoCLUSTdef'
@@ -285,10 +289,10 @@ def main(argv):
 	consensus_sequences=50
 	consensus_average_variability_percentage=10
 	try:
-		opts,args=getopt.getopt(argv,"hi:o:s:c:",["input_file","output_folder","split_option","consensus_option"])
-	except getopt.GetoptError:
+		opts,args=getopt(arguv,"hi:o:s:c:",["input_file","output_folder","split_option","consensus_option"])
+	except GetoptError:
 		usage()
-		sys.exit(2)
+		exit(2)
 	for opt, arg in opts:
 		if opt == '-h':
 			usage()
@@ -304,7 +308,7 @@ def main(argv):
 
 	if (input_file==''):
 		usage()
-		sys.exit(2)
+		exit(2)
 
         PROG_VSEARCH=which('vsearch')
     	print_prog_status("vsearch",PROG_VSEARCH)
@@ -361,7 +365,7 @@ def main(argv):
 			while ind<2:
 				lower_threshold=average_length_bin-((float(local_average_variability_percentage)/100.0)*average_length_bin)
         			upper_threshold=average_length_bin+((float(local_average_variability_percentage)/100.0)*average_length_bin)		
-				print "Taking at most " + str(consensus_sequences) + " sequences at " + str(local_average_variability_percentage) + "% of average bin size ("+ str(lower_threshold) + "," + str(average_length_bin) + "," + str(upper_threshold) + ")" 
+				print ("Taking at most %s sequences at %.2f % of average bin size (%d , %d , %d)"%(consensus_sequences,local_average_variability_percentage,lower_threshold, average_length_bin,upper_threshold))
 
 				for j in otu_assignments[i]:
 					if ((len(memory_sequences[j]) >= lower_threshold) and (len(memory_sequences[j]) <= upper_threshold)):
@@ -379,7 +383,7 @@ def main(argv):
 
 			print_time_stamp("Aligning " + output_folder+"/"+i+".fasta")
 			cmd=PROG_MAFFTGINSI + " " + output_folder+"/"+i+".fasta" + " > " + output_folder+"/"+i+".gfasta"
-			print cmd
+			print(cmd)
 			run_prog(cmd)
 			print_time_stamp("Generated " + output_folder+"/"+i+".gfasta")
 			alignments=AlignIO.read(output_folder+"/"+i+".gfasta","fasta")
@@ -394,15 +398,15 @@ def main(argv):
 	cf.close()
 	print_time_stamp("Generated " + output_folder+"/consensus.fasta")
 
-	print PROG_UC2OTUTAB
+	print( PROG_UC2OTUTAB)
 	cmd = "python " + PROG_UC2OTUTAB + " " + file_name + " > " + output_folder + "/otu_table.txt"
 	print_time_stamp('Generating otu_table for ' + file_name)
-	print cmd
+	print (cmd)
 	run_prog(cmd)
 	print_time_stamp('Generated '+output_folder+'/otu_table.txt')
 
 	
 
 if __name__== "__main__":
-	main(sys.argv[1:])
+	main(argv[1:])
 			

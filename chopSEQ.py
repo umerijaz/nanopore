@@ -154,6 +154,8 @@ def main(arguv):
 	#Reference: http://biopython.org/DIST/docs/tutorial/Tutorial.html#htoc85
 	#Reference: https://stackoverflow.com/questions/287871/print-in-terminal-with-colors-using-pyton
     #this allow the multiprocessor call and allow for the ability
+
+
     if processing == cpu_count():
         with ProcessPoolExecutor() as executor:
             results =[executor.submit(process_seq_records, seq_record, forward_primer, reverse_primer, verbosity, minimum_read_length_threshold, maximum_read_length_threshold) for seq_record in parse(input_file,"fasta")]
@@ -162,7 +164,7 @@ def main(arguv):
                 print(resultant.result())
 
 
-    elif processing:
+    elif processing and threading == 0:
         with ProcessPoolExecutor(max_workers=processing) as executor:
             results =[executor.submit(process_seq_records, seq_record, forward_primer, reverse_primer, verbosity, minimum_read_length_threshold, maximum_read_length_threshold) for seq_record in parse(input_file,"fasta")]
 
