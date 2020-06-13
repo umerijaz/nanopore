@@ -27,9 +27,9 @@ python3 chopSEQ.py -h
 
 This will allow the computer to run on six all core if the computer has that many otherwise it'll send you to usage 
 
-./chopSEQ.py -i input_file -f foward_primer -r reservser_primer -p 6 > output_file 
+./chopSEQ.py -i input_file -f foward_primer -r reservser_primer -p 3 > output_file 
 
-python3 chopSEQ.py -i input_file -f foward_primers -r reverse_primers > \ >>  output_file 
+python3 chopSEQ.py -i input_file -f foward_primers -r reverse_primers -p 3 > \ >>  output_file 
 
 this will allow the user to run on a single processor
 
@@ -47,7 +47,7 @@ best time ***1***
 | data sets | No. total seqs | proccesing used type | times | 
 |--------------------------|----------------|----------------------|--------|
 |sample_Travis2_p2.fa|419| Multithreading |1:49:06|
-|sample_Travis2_p2.fa|419| Single core ||
+|sample_Travis2_p2.fa|419| Single core |1:19:54|
 |sample_Travis2_p2.fa|419| Two cores ||
 |sample_Travis2_p2.fa|419| Three cores ||
 |sample_Travis2_p2.fa|419| Four cores ||	
