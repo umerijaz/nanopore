@@ -50,6 +50,10 @@ Legend
 
 best time ***1***
 
+$$:!!:^^
+
+$$ = hours,!! - minutes,^^= Seconds
+
 | data sets | No. total seqs | proccesing used type | times | 
 |--------------------------|----------------|----------------------|--------|
 |sample_Travis2_p2.fa|419| Multithreading |1:49:06|
