@@ -55,7 +55,7 @@ best time ***1***
 |sample_Travis2_p2.fa|419| Multithreading |1:49:06|
 |sample_Travis2_p2.fa|419| Single core |1:19:54|
 |sample_Travis2_p2.fa|419| Two cores |  57:05|
-|sample_Travis2_p2.fa|419| Three cores |***  50:08***|
+|sample_Travis2_p2.fa|419| Three cores |  ***50:08***|
 |sample_Travis2_p2.fa|419| Four cores |  50:57|	
 |sample_Travis2_p2.fa|419| Five cores |  52:56|
 |sample_Travis2_p2.fa|419| Six cores  |1:00:16|
@@ -64,7 +64,7 @@ best time ***1***
 |sample_Travis2_p4.1.fa|589| Multithreading |1:17:29|
 |sample_Travis2_p4.1.fa|589| single core |  58:05|
 |sample_Travis2_p4.1.fa|589| two cores |  35:18|
-|sample_Travis2_p4.1.fa|589| three cores |***  31:43***|
+|sample_Travis2_p4.1.fa|589| three cores |  ***31:43***|
 |sample_Travis2_p4.1.fa|589| four cores |  36:31|
 |sample_Travis2_p4.1.fa|589| five cores |  40:23|
 |sample_Travis2_p4.1.fa|589| six cores  |  43:27|
