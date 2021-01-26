@@ -1,0 +1,4 @@
+psutil
+biopython 
+wheel
+vsearch
